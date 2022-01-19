@@ -17,6 +17,8 @@ int main(int argc, char **argv)
     main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
     image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
 
+    gtk_image_set_from_file((GtkImage*)image, "default.bmp");
+
     // Connect signals
     gtk_builder_connect_signals(builder, NULL);
     

@@ -8,7 +8,6 @@
     <property name="default_width">640</property>
     <property name="default_height">480</property>
     <property name="icon_name">applications-graphics</property>
-    <signal name="configure-event" handler="cb_window_resize" swapped="no"/>
     <child type="titlebar">
       <placeholder/>
     </child>
