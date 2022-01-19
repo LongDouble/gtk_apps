@@ -1,48 +1,33 @@
-#include "support.h"
-
 #define UI_FILE "charter.glade"
+
+#include <gtk/gtk.h>
 
 int main(int argc, char **argv)
 {
-    ChData *data;
+    GtkWidget *main_window;
+    GtkWidget *chart_area;
     GtkBuilder *builder;
-    GError *error = NULL;
 
     //Init GTK+
     gtk_init(&argc, &argv);
 
-    //Create new GtkBuilder object
-    builder = gtk_builder_new();
-    if(!gtk_builder_add_from_file(builder, UI_FILE, &error))
-    {
-        g_warning("%s", error->message);
-        g_free(error);
-        return(1);
-    }
+    //Create new GtkBuilder object from file
+    builder = gtk_builder_new_from_file(UI_FILE);
 
-    // Allocate data structure
-    data = g_slice_new(ChData);
-
-    // Get objects from UI
-#define GW(name) CH_GET_WIDGET(builder, name, data)
-    GW(main_window);
-    GW(chart_area);
-#undef GW
+    main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
+    chart_area = GTK_WIDGET(gtk_builder_get_object(builder, "chart_area"));
 
     // Connect signals
-    gtk_builder_connect_signals(builder, data);
+    gtk_builder_connect_signals(builder, NULL);
     
     // Destroy builder, since we don't need it anymore
     g_object_unref(G_OBJECT(builder));
 
     // Show window.  All other widgets are automatically shown by GtkBuilder
-    gtk_widget_show(data->main_window);
+    gtk_widget_show(main_window);
 
     // Start main loop
     gtk_main();
-
-    // Free any allocated data
-    g_slice_free(ChData, data);
 
     return(0);
 }

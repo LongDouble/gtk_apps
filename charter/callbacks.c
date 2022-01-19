@@ -1,4 +1,4 @@
-#include "support.h"
+#include <gtk/gtk.h>
 
 G_MODULE_EXPORT gboolean
 cb_draw_chart(  GtkWidget *widget,

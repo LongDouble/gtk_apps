@@ -5,10 +5,10 @@ OBJECTS = charter.o callbacks.o
 charter: $(OBJECTS)
 	$(CC) -o charter $(OBJECTS) $(CFLAGS)
 
-charter.o: charter.c support.h
+charter.o: charter.c
 	$(CC) -c charter.c $(CFLAGS)
 
-callbacks.o: callbacks.c support.h
+callbacks.o: callbacks.c
 	$(CC) -c callbacks.c $(CFLAGS)
 
 clean:
