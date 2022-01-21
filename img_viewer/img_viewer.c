@@ -8,16 +8,21 @@ int main(int argc, char **argv)
     GtkWidget *image;
     GtkBuilder *builder;
 
+    GdkPixbuf* pixel_buff;
+
     //Init GTK+
     gtk_init(&argc, &argv);
 
     //Create new GtkBuilder object from file
     builder = gtk_builder_new_from_file(UI_FILE);
 
+    // Get objects from UI file
     main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
     image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
 
-    gtk_image_set_from_file((GtkImage*)image, "default.bmp");
+    // Set the image from file
+    pixel_buff = gdk_pixbuf_new_from_file_at_scale("default.bmp", 1920/2.0, 1080, 1, NULL);
+    gtk_image_set_from_pixbuf((GtkImage*)image, pixel_buff);
 
     // Connect signals
     gtk_builder_connect_signals(builder, NULL);
