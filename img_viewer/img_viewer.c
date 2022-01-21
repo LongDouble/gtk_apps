@@ -8,7 +8,11 @@ int main(int argc, char **argv)
     GtkWidget *image;
     GtkBuilder *builder;
 
-    GdkPixbuf* pixel_buff;
+    // Used to avoid losing track of unscaled photo address
+    GdkPixbuf* srcPixBuf;
+
+    // Contains scaled photo to display
+    GdkPixbuf* destPixBuf;
 
     //Init GTK+
     gtk_init(&argc, &argv);
@@ -21,8 +25,14 @@ int main(int argc, char **argv)
     image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
 
     // Set the image from file
-    pixel_buff = gdk_pixbuf_new_from_file_at_scale("default.bmp", 1920/2.0, 1080, 1, NULL);
-    gtk_image_set_from_pixbuf((GtkImage*)image, pixel_buff);
+    srcPixBuf = gdk_pixbuf_new_from_file("default.bmp", NULL);
+
+    // Scale the image and delete original Pixbuf
+    destPixBuf = gdk_pixbuf_scale_simple(srcPixBuf, gdk_pixbuf_get_width(srcPixBuf) / 2, gdk_pixbuf_get_height(srcPixBuf) / 2, GDK_INTERP_BILINEAR);
+    g_object_unref(G_OBJECT(srcPixBuf));
+
+    // Set image from Pixbuf
+    gtk_image_set_from_pixbuf((GtkImage*)image, destPixBuf);
 
     // Connect signals
     gtk_builder_connect_signals(builder, NULL);
