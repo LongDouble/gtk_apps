@@ -11,6 +11,13 @@ int main(int argc, char **argv)
     //Init GTK+
     gtk_init(&argc, &argv);
 
+    // Verify a filename was passed as an argument
+    if(argc != 2)
+    {
+        g_printerr("ERROR: No file name! (Usage: ./img_viewer <file>)\n");
+        return 1;
+    }
+
     //Create new GtkBuilder object from file
     builder = gtk_builder_new_from_file(UI_FILE);
 
@@ -21,7 +28,7 @@ int main(int argc, char **argv)
     data->image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
 
     // Set the image from file
-    data->srcPixbuf = gdk_pixbuf_new_from_file("default.bmp", NULL);
+    data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);
 
     // Scale the image
     data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, gdk_pixbuf_get_width(data->srcPixbuf) / 2, gdk_pixbuf_get_height(data->srcPixbuf) / 2, GDK_INTERP_BILINEAR);
