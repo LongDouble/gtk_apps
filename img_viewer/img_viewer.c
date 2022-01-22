@@ -26,6 +26,7 @@ int main(int argc, char **argv)
     // Get objects from UI file
     data->main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
     data->image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
+    data->viewport = GTK_WIDGET(gtk_builder_get_object(builder, "viewport"));
 
     // Set the image from file
     data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);

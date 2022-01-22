@@ -4,6 +4,7 @@ struct CbData
 {
     GtkWidget *main_window;
     GtkWidget *image;
+    GtkWidget *viewport;
 
     // Used to avoid losing track of unscaled photo address
     GdkPixbuf* srcPixbuf;
