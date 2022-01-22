@@ -5,10 +5,10 @@ OBJECTS = img_viewer.o callbacks.o
 charter: $(OBJECTS)
 	$(CC) -o img_viewer $(OBJECTS) $(CFLAGS)
 
-img_viewer.o: img_viewer.c
+img_viewer.o: img_viewer.c support.h
 	$(CC) -c img_viewer.c $(CFLAGS)
 
-callbacks.o: callbacks.c
+callbacks.o: callbacks.c support.h
 	$(CC) -c callbacks.c $(CFLAGS)
 
 clean:
