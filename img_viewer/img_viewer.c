@@ -7,6 +7,9 @@ int main(int argc, char **argv)
 {
     struct CbData *data;
     GtkBuilder *builder;
+    GdkWindow* viewport;
+    int width, height;
+    float aspectRatio;
 
     //Init GTK+
     gtk_init(&argc, &argv);
@@ -28,18 +31,6 @@ int main(int argc, char **argv)
     data->image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
     data->viewport = GTK_WIDGET(gtk_builder_get_object(builder, "viewport"));
 
-    // Set the image from file
-    data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);
-
-    // Scale the image
-    data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, gdk_pixbuf_get_width(data->srcPixbuf) / 2, gdk_pixbuf_get_height(data->srcPixbuf) / 2, GDK_INTERP_BILINEAR);
-
-    // Set image from Pixbuf
-    gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
-
-    // Clear Pixbuf
-    g_object_unref(G_OBJECT(data->destPixbuf));
-
     // Connect signals
     gtk_builder_connect_signals(builder, data);
     
@@ -48,6 +39,36 @@ int main(int argc, char **argv)
 
     // Show window.  All other widgets are automatically shown by GtkBuilder
     gtk_widget_show(data->main_window);
+
+    // Get view window of viewport
+    viewport = gtk_viewport_get_view_window((GtkViewport*)data->viewport);
+    width = gdk_window_get_width(viewport);
+    height = gdk_window_get_height(viewport);
+
+    // Set the image from file
+    data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);
+
+    // Calculate current aspect ratio of image
+    aspectRatio = gdk_pixbuf_get_width(data->srcPixbuf) / gdk_pixbuf_get_height(data->srcPixbuf);
+
+    // Try scaling by width first
+    if((int)(width / aspectRatio) <= height)
+    {
+        // Scale image and store in destination buffer
+        data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, width, (int)(width / aspectRatio), GDK_INTERP_BILINEAR);
+    }
+    // Scale by height if width made image outside window
+    else
+    {
+        // Scale image and store in destination buffer
+        data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, (int)(height * aspectRatio), height, GDK_INTERP_BILINEAR);
+    }
+
+    // Set image from Pixbuf
+    gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
+
+    // Clear Pixbuf
+    g_object_unref(G_OBJECT(data->destPixbuf));
 
     // Start main loop
     gtk_main();
