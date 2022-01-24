@@ -2,12 +2,16 @@
 
 #include <gtk/gtk.h>
 #include "support.h"
+#include <string.h>
 
 int main(int argc, char **argv)
 {
     struct CbData *data;
     GtkBuilder *builder;
     GdkWindow* viewport;
+
+    // Character buffer
+    char buff[256];
 
     // Initial viewport width and height
     int width, height;
@@ -19,9 +23,9 @@ int main(int argc, char **argv)
     gtk_init(&argc, &argv);
 
     // Verify a filename was passed as an argument
-    if(argc != 2)
+    if(argc != 4)
     {
-        g_printerr("ERROR: No file name! (Usage: ./img_viewer <file>)\n");
+        g_printerr("ERROR: No file name! (Usage: ./img_viewer <file> <canvasWidth> <canvasHeight>)\n");
         return 1;
     }
 
@@ -35,6 +39,10 @@ int main(int argc, char **argv)
     data->main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
     data->image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
     data->viewport = GTK_WIDGET(gtk_builder_get_object(builder, "viewport"));
+    data->canvasWidthLabel = GTK_WIDGET(gtk_builder_get_object(builder, "canvaswidthlabel"));
+    data->canvasHeightLabel = GTK_WIDGET(gtk_builder_get_object(builder, "canvasheightlabel"));
+    data->imageWidthLabel = GTK_WIDGET(gtk_builder_get_object(builder, "imagewidthlabel"));
+    data->imageHeightLabel = GTK_WIDGET(gtk_builder_get_object(builder, "imageheightlabel"));
 
     // Connect signals
     gtk_builder_connect_signals(builder, data);
@@ -54,7 +62,7 @@ int main(int argc, char **argv)
     data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);
 
     // Create black background
-    data->backPixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, 0, 8, 1920, 1080);
+    data->backPixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, 0, 8, atoi(argv[2]), atoi(argv[3]));
     gdk_pixbuf_fill(data->backPixbuf, 0);
 
     // Copy image onto the background
@@ -81,6 +89,16 @@ int main(int argc, char **argv)
 
     // Clear Pixbuf
     g_object_unref(G_OBJECT(data->destPixbuf));
+
+    // Set Canvas labels
+    sprintf(buff, "CanvasWidth: %s", argv[2]);
+    gtk_label_set_text((GtkLabel*)(data->canvasWidthLabel), buff);
+    sprintf(buff, "CanvasHeight: %s", argv[3]);
+    gtk_label_set_text((GtkLabel*)(data->canvasHeightLabel), buff);
+    sprintf(buff, "ImageWidth: %d", gdk_pixbuf_get_width(data->srcPixbuf));
+    gtk_label_set_text((GtkLabel*)(data->imageWidthLabel), buff);
+    sprintf(buff, "ImageHeight: %d", gdk_pixbuf_get_height(data->srcPixbuf));
+    gtk_label_set_text((GtkLabel*)(data->imageHeightLabel), buff);
 
     // Start main loop
     gtk_main();

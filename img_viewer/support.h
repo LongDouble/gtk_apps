@@ -2,9 +2,14 @@
 #define __SUPPORT_H__
 struct CbData
 {
+    // Widgets to load from glade
     GtkWidget *main_window;
     GtkWidget *image;
     GtkWidget *viewport;
+    GtkWidget *canvasWidthLabel;
+    GtkWidget *canvasHeightLabel;
+    GtkWidget *imageWidthLabel;
+    GtkWidget *imageHeightLabel;
 
     // Unscaled source photo
     GdkPixbuf* srcPixbuf;
