@@ -8,10 +8,14 @@ int main(int argc, char **argv)
     struct CbData *data;
     GtkBuilder *builder;
     GdkWindow* viewport;
+
+    // Initial viewport width and height
     int width, height;
+
+    // Original image aspect ratio
     float aspectRatio;
 
-    //Init GTK+
+    // Init GTK+
     gtk_init(&argc, &argv);
 
     // Verify a filename was passed as an argument
@@ -24,6 +28,7 @@ int main(int argc, char **argv)
     //Create new GtkBuilder object from file
     builder = gtk_builder_new_from_file(UI_FILE);
 
+    // Allocate memory for shared data pointer
     data = g_slice_new(struct CbData);
 
     // Get objects from UI file
@@ -73,6 +78,7 @@ int main(int argc, char **argv)
     // Start main loop
     gtk_main();
 
+    // Free data allocated for shared memory
     g_slice_free(struct CbData, data);
 
     return(0);

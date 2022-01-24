@@ -12,17 +12,18 @@ cb_configure_event(
     float aspectRatio;
     int width, height;
 
+    // Get view window of the viewport
     viewport = gtk_viewport_get_view_window((GtkViewport*)data->viewport);
 
     // Calculate current aspect ratio of image
     aspectRatio = gdk_pixbuf_get_width(data->srcPixbuf) / gdk_pixbuf_get_height(data->srcPixbuf);
     
-    // Get the current width of the scrolled window
+    // Get the current width and height of the viewport
     width = gdk_window_get_width(viewport);
     height = gdk_window_get_height(viewport);
 
-    // Check if scaling by width will make image less than 1 pixel or larger than window
-    if((width > 0) && ((int)(width / aspectRatio) > 0) && ((int)(width / aspectRatio) <= height))
+    // Check if scaling by width will make image larger than window
+    if((int)(width / aspectRatio) <= height)
     {
         // Scale image and store in destination buffer
         data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, width, (int)(width / aspectRatio), GDK_INTERP_BILINEAR);
@@ -33,8 +34,8 @@ cb_configure_event(
         // Clear destination buffer
         g_object_unref(G_OBJECT(data->destPixbuf));
     }
-    // Check if scaling by height will make image less than 1 pixel or larger than window
-    else if((height > 0) && ((int)(height * aspectRatio) > 0) && ((int)(width * aspectRatio) <= width))
+    // Check if scaling by height will make image larger than window
+    else if((int)(width * aspectRatio) <= width)
     {
         // Scale image and store in destination buffer
         data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, height, (int)(height * aspectRatio), GDK_INTERP_BILINEAR);
