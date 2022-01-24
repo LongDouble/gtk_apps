@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     gdk_pixbuf_copy_area(data->srcPixbuf, 0, 0, gdk_pixbuf_get_width(data->srcPixbuf), gdk_pixbuf_get_height(data->srcPixbuf), data->backPixbuf, 0, 0);
 
     // Calculate current aspect ratio of image
-    aspectRatio = gdk_pixbuf_get_width(data->backPixbuf) / gdk_pixbuf_get_height(data->backPixbuf);
+    aspectRatio = (float)gdk_pixbuf_get_width(data->backPixbuf) / (float)gdk_pixbuf_get_height(data->backPixbuf);
 
     // Try scaling by width first
     if((int)(width / aspectRatio) <= height)

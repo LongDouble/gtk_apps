@@ -16,7 +16,7 @@ cb_configure_event(
     viewport = gtk_viewport_get_view_window((GtkViewport*)data->viewport);
 
     // Calculate current aspect ratio of image
-    aspectRatio = gdk_pixbuf_get_width(data->backPixbuf) / gdk_pixbuf_get_height(data->backPixbuf);
+    aspectRatio = (float)gdk_pixbuf_get_width(data->backPixbuf) / (float)gdk_pixbuf_get_height(data->backPixbuf);
     
     // Get the current width and height of the viewport
     width = gdk_window_get_width(viewport);
