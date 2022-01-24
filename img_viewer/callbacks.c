@@ -34,11 +34,11 @@ cb_configure_event(
         // Clear destination buffer
         g_object_unref(G_OBJECT(data->destPixbuf));
     }
-    // Check if scaling by height will make image larger than window
-    else if((int)(width * aspectRatio) <= width)
+    // Scale by height 
+    else
     {
         // Scale image and store in destination buffer
-        data->destPixbuf = gdk_pixbuf_scale_simple(data->backPixbuf, height, (int)(height * aspectRatio), GDK_INTERP_BILINEAR);
+        data->destPixbuf = gdk_pixbuf_scale_simple(data->backPixbuf, (int)(height * aspectRatio), height, GDK_INTERP_BILINEAR);
 
         // Set image from destination buffer
         gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
