@@ -6,8 +6,11 @@ struct CbData
     GtkWidget *image;
     GtkWidget *viewport;
 
-    // Used to avoid losing track of unscaled photo address
+    // Unscaled source photo
     GdkPixbuf* srcPixbuf;
+
+    // Unscaled background and source photo
+    GdkPixbuf* backPixbuf;
 
     // Contains scaled photo to display
     GdkPixbuf* destPixbuf;

@@ -16,7 +16,7 @@ cb_configure_event(
     viewport = gtk_viewport_get_view_window((GtkViewport*)data->viewport);
 
     // Calculate current aspect ratio of image
-    aspectRatio = gdk_pixbuf_get_width(data->srcPixbuf) / gdk_pixbuf_get_height(data->srcPixbuf);
+    aspectRatio = gdk_pixbuf_get_width(data->backPixbuf) / gdk_pixbuf_get_height(data->backPixbuf);
     
     // Get the current width and height of the viewport
     width = gdk_window_get_width(viewport);
@@ -26,7 +26,7 @@ cb_configure_event(
     if((int)(width / aspectRatio) <= height)
     {
         // Scale image and store in destination buffer
-        data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, width, (int)(width / aspectRatio), GDK_INTERP_BILINEAR);
+        data->destPixbuf = gdk_pixbuf_scale_simple(data->backPixbuf, width, (int)(width / aspectRatio), GDK_INTERP_BILINEAR);
 
         // Set image from destination buffer
         gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
@@ -38,7 +38,7 @@ cb_configure_event(
     else if((int)(width * aspectRatio) <= width)
     {
         // Scale image and store in destination buffer
-        data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, height, (int)(height * aspectRatio), GDK_INTERP_BILINEAR);
+        data->destPixbuf = gdk_pixbuf_scale_simple(data->backPixbuf, height, (int)(height * aspectRatio), GDK_INTERP_BILINEAR);
 
         // Set image from destination buffer
         gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);

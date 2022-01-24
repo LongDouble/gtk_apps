@@ -53,20 +53,27 @@ int main(int argc, char **argv)
     // Set the image from file
     data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);
 
+    // Create black background
+    data->backPixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, 0, 8, 1920, 1080);
+    gdk_pixbuf_fill(data->backPixbuf, 0);
+
+    // Copy image onto the background
+    gdk_pixbuf_copy_area(data->srcPixbuf, 0, 0, gdk_pixbuf_get_width(data->srcPixbuf), gdk_pixbuf_get_height(data->srcPixbuf), data->backPixbuf, 0, 0);
+
     // Calculate current aspect ratio of image
-    aspectRatio = gdk_pixbuf_get_width(data->srcPixbuf) / gdk_pixbuf_get_height(data->srcPixbuf);
+    aspectRatio = gdk_pixbuf_get_width(data->backPixbuf) / gdk_pixbuf_get_height(data->backPixbuf);
 
     // Try scaling by width first
     if((int)(width / aspectRatio) <= height)
     {
         // Scale image and store in destination buffer
-        data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, width, (int)(width / aspectRatio), GDK_INTERP_BILINEAR);
+        data->destPixbuf = gdk_pixbuf_scale_simple(data->backPixbuf, width, (int)(width / aspectRatio), GDK_INTERP_BILINEAR);
     }
     // Scale by height if width made image outside window
     else
     {
         // Scale image and store in destination buffer
-        data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, (int)(height * aspectRatio), height, GDK_INTERP_BILINEAR);
+        data->destPixbuf = gdk_pixbuf_scale_simple(data->backPixbuf, (int)(height * aspectRatio), height, GDK_INTERP_BILINEAR);
     }
 
     // Set image from Pixbuf
