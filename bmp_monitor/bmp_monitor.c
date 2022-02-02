@@ -1,4 +1,4 @@
-#define UI_FILE "bmp_monitor.glade"
+//#define UI_FILE "bmp_monitor.glade"
 
 #include <gtk/gtk.h>
 #include "support.h"
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     }
 
     //Create new GtkBuilder object from file
-    builder = gtk_builder_new_from_file(UI_FILE);
+    builder = gtk_builder_new_from_resource("/org/gtk/bmp_monitor/bmp_monitor.glade");
 
     // Allocate memory for shared data pointer
     data = g_slice_new(struct CbData);
@@ -59,27 +59,11 @@ int main(int argc, char **argv)
     // Set the image from file
     data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);
 
-    // Calculate current aspect ratio of image
-    aspectRatio = (float)gdk_pixbuf_get_width(data->srcPixbuf) / (float)gdk_pixbuf_get_height(data->srcPixbuf);
-
-    // Try scaling by width first
-    if((int)(width / aspectRatio) <= height)
-    {
-        // Scale image and store in destination buffer
-        data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, width, (int)(width / aspectRatio), GDK_INTERP_BILINEAR);
-    }
-    // Scale by height if width made image outside window
-    else
-    {
-        // Scale image and store in destination buffer
-        data->destPixbuf = gdk_pixbuf_scale_simple(data->srcPixbuf, (int)(height * aspectRatio), height, GDK_INTERP_BILINEAR);
-    }
-
     // Set image from Pixbuf
-    gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
+    gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->srcPixbuf);
 
     // Clear Pixbuf
-    g_object_unref(G_OBJECT(data->destPixbuf));
+    g_object_unref(G_OBJECT(data->srcPixbuf));
 
     // Set Canvas labels
     sprintf(buff, "Frame Width: %d", gdk_pixbuf_get_width(data->srcPixbuf));

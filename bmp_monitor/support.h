@@ -11,8 +11,5 @@ struct CbData
 
     // Unscaled source photo
     GdkPixbuf* srcPixbuf;
-
-    // Contains scaled photo to display
-    GdkPixbuf* destPixbuf;
 };
 #endif
