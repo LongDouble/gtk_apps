@@ -2,6 +2,8 @@
 #include <string.h>
 #include "support.h"
 
+gboolean update_bmp(gpointer user_data);
+
 int main(int argc, char **argv)
 {
     struct CbData *data;
@@ -44,20 +46,27 @@ int main(int argc, char **argv)
     // Show window.  All other widgets are automatically shown by GtkBuilder
     gtk_widget_show(data->mainWindow);
 
+    data->frameNumber = 0;
+    data->state = 0;
+    strcpy(data->prefix, argv[1]);
+
+    // Run update_bmp function every 100 ms to check for changes
+    gint func_ref = g_timeout_add(100, update_bmp, data);
+
     // Set the image from file
-    data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);
+    //data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);
 
     // Set image from Pixbuf
-    gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->srcPixbuf);
+    //gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->srcPixbuf);
 
     // Clear Pixbuf
-    g_object_unref(G_OBJECT(data->srcPixbuf));
+    //g_object_unref(G_OBJECT(data->srcPixbuf));
 
     // Set Canvas labels
-    sprintf(buff, "Frame Width: %d", gdk_pixbuf_get_width(data->srcPixbuf));
-    gtk_label_set_text((GtkLabel*)(data->frameWidthLabel), buff);
-    sprintf(buff, "Frame Height: %d", gdk_pixbuf_get_height(data->srcPixbuf));
-    gtk_label_set_text((GtkLabel*)(data->frameHeightLabel), buff);
+    //sprintf(buff, "Frame Width: %d", gdk_pixbuf_get_width(data->srcPixbuf));
+    //gtk_label_set_text((GtkLabel*)(data->frameWidthLabel), buff);
+    //sprintf(buff, "Frame Height: %d", gdk_pixbuf_get_height(data->srcPixbuf));
+    //gtk_label_set_text((GtkLabel*)(data->frameHeightLabel), buff);
 
     // Start main loop
     gtk_main();
@@ -65,5 +74,19 @@ int main(int argc, char **argv)
     // Free data allocated for shared memory
     g_slice_free(struct CbData, data);
 
+    // Remove the timeout function
+    g_source_remove(func_ref);
+
     return(0);
+}
+
+
+// Run every 100 ms
+gboolean update_bmp(gpointer user_data)
+{
+    struct CbData *data = user_data;
+    char buff[64];
+    sprintf(buff, "Frame: %u", data->frameNumber);
+    (data->frameNumber)++;
+    gtk_label_set_text((GtkLabel*)(data->frameWidthLabel), buff);
 }
