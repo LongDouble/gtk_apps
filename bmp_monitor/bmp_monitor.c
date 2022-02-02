@@ -48,6 +48,9 @@ int main(int argc, char **argv)
     // Destroy builder, since we don't need it anymore
     g_object_unref(G_OBJECT(builder));
 
+    // Set window title
+    gtk_window_set_title((GtkWindow*)(data->main_window), argv[1]);
+
     // Show window.  All other widgets are automatically shown by GtkBuilder
     gtk_widget_show(data->main_window);
 
