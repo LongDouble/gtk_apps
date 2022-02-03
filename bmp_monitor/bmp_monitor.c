@@ -36,6 +36,7 @@ int main(int argc, char **argv)
     data->image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
     data->frameWidthLabel = GTK_WIDGET(gtk_builder_get_object(builder, "framewidthlabel"));
     data->frameHeightLabel = GTK_WIDGET(gtk_builder_get_object(builder, "frameheightlabel"));
+    data->progressLabel = GTK_WIDGET(gtk_builder_get_object(builder, "progresslabel"));
 
     // Connect signals
     gtk_builder_connect_signals(builder, data);
@@ -45,10 +46,10 @@ int main(int argc, char **argv)
 
     // Set initial conditions
     data->frameNumber = 1;
-    data->state = 0;
     data->fileSize = 0;
     strcpy(data->prefix, argv[1]);
     sprintf(data->fileName, "%s%u.bmp", data->prefix, data->frameNumber);
+    sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
 
     // Set window title
     gtk_window_set_title((GtkWindow*)(data->mainWindow), data->fileName);
@@ -58,12 +59,6 @@ int main(int argc, char **argv)
 
     // Run update_bmp function every 100 ms to check for changes
     gint func_ref = g_timeout_add(100, update_bmp, data);
-
-    // Set Canvas labels
-    //sprintf(buff, "Frame Width: %d", gdk_pixbuf_get_width(data->srcPixbuf));
-    //gtk_label_set_text((GtkLabel*)(data->frameWidthLabel), buff);
-    //sprintf(buff, "Frame Height: %d", gdk_pixbuf_get_height(data->srcPixbuf));
-    //gtk_label_set_text((GtkLabel*)(data->frameHeightLabel), buff);
 
     // Start main loop
     gtk_main();
@@ -82,33 +77,36 @@ int main(int argc, char **argv)
 gboolean update_bmp(gpointer user_data)
 {
     struct CbData *data = user_data;
+
+    // Structs needed to retrieve file size
     struct stat st;
+    struct stat nextSt;
+
+    // Retrieved file sizes
     unsigned int size;
+    unsigned int nextSize;
+
+    // 0 if files exist
     short int exists;
+    short int nextExists;
+
+    // General use character buffer
+    char buff[64];
+
+    // Calculated full size of image when complete
+    unsigned int fullSize;
 
     // Get file size
     exists = stat(data->fileName, &st);
     size = st.st_size;
-    g_print("Exist: (%u) Size: (%u)\n", exists, size);
 
-    // Check if still waiting to load image
-    if((data->state) == 0)
+    // Check if file exists with header information
+    if((exists == 0) && (size > HEADER_SIZE))
     {
-        // Check if file exists with header information
-        if((exists == 0) && (size > HEADER_SIZE))
+        // Check if new file size is different size
+        if(size != (data->fileSize))
         {
-            // Indicate image exists and needs to be moitored
-            data->state = 1;
-        }
-    }
-
-    // File exists and needs to be checked for updates
-    if((data->state) == 1)
-    {
-        
-        // Check if new file size is larger
-        if(size > (data->fileSize))
-        {
+            // Update file size
             data->fileSize = size;
 
             // Set the image from file
@@ -117,9 +115,41 @@ gboolean update_bmp(gpointer user_data)
             // Set image from Pixbuf
             gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->srcPixbuf);
 
+            // Calculate finished full size of image in bytes (not including header)
+            fullSize = (gdk_pixbuf_get_width(data->srcPixbuf) * gdk_pixbuf_get_height(data->srcPixbuf))*3;
+
+            // Set Canvas labels
+            sprintf(buff, "Frame Width: %d", gdk_pixbuf_get_width(data->srcPixbuf));
+            gtk_label_set_text((GtkLabel*)(data->frameWidthLabel), buff);
+            sprintf(buff, "Frame Height: %d", gdk_pixbuf_get_height(data->srcPixbuf));
+            gtk_label_set_text((GtkLabel*)(data->frameHeightLabel), buff);
+            sprintf(buff, "Progress: %.2f%%", ((float)(size - 54) / (float)(fullSize)) * 100.0);
+            gtk_label_set_text((GtkLabel*)(data->progressLabel), buff);
+
             //Clear Pixbuf
             g_object_unref(G_OBJECT(data->srcPixbuf));
         }
     }
+
+    // Check for next file to monitor
+    nextExists = stat(data->nextFileName, &nextSt);
+    nextSize = nextSt.st_size;
+
+    // Check if next file exists and contains header information
+    if((nextExists == 0) && (nextSize > HEADER_SIZE))
+    {
+        // Update data for new file
+        data->frameNumber = (data->frameNumber) + 1;
+        data->fileSize = 0;
+        sprintf(data->fileName, "%s%u.bmp", data->prefix, data->frameNumber);
+        sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
+
+        // Set new window title
+        gtk_window_set_title((GtkWindow*)(data->mainWindow), data->fileName);
+
+        // Clear image for new one
+        gtk_image_clear((GtkImage*)(data->image));
+    }
+
     return TRUE;
 }

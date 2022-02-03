@@ -7,6 +7,7 @@ struct CbData
     GtkWidget *image;
     GtkWidget *frameWidthLabel;
     GtkWidget *frameHeightLabel;
+    GtkWidget *progressLabel;
 
     // File prefix
     char prefix[4097];
@@ -14,14 +15,11 @@ struct CbData
     // File name
     char fileName[4097];
 
+    // Next file name to monitor
+    char nextFileName[4097];
+
     // Current frame number
     unsigned int frameNumber;
-
-    /* State
-     * 0 - Waiting for file to be created
-     * 1 - Monitoring file for changes in size
-     */
-    unsigned short int state;
 
     // Size of the currenly monitored BMP
     unsigned int fileSize;
