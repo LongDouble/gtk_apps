@@ -1,6 +1,9 @@
 #include <gtk/gtk.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "support.h"
+
+#define HEADER_SIZE 54
 
 gboolean update_bmp(gpointer user_data);
 
@@ -40,27 +43,21 @@ int main(int argc, char **argv)
     // Destroy builder, since we don't need it anymore
     g_object_unref(G_OBJECT(builder));
 
+    // Set initial conditions
+    data->frameNumber = 1;
+    data->state = 0;
+    data->fileSize = 0;
+    strcpy(data->prefix, argv[1]);
+    sprintf(data->fileName, "%s%u.bmp", data->prefix, data->frameNumber);
+
     // Set window title
-    gtk_window_set_title((GtkWindow*)(data->mainWindow), argv[1]);
+    gtk_window_set_title((GtkWindow*)(data->mainWindow), data->fileName);
 
     // Show window.  All other widgets are automatically shown by GtkBuilder
     gtk_widget_show(data->mainWindow);
 
-    data->frameNumber = 0;
-    data->state = 0;
-    strcpy(data->prefix, argv[1]);
-
     // Run update_bmp function every 100 ms to check for changes
     gint func_ref = g_timeout_add(100, update_bmp, data);
-
-    // Set the image from file
-    //data->srcPixbuf = gdk_pixbuf_new_from_file(argv[1], NULL);
-
-    // Set image from Pixbuf
-    //gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->srcPixbuf);
-
-    // Clear Pixbuf
-    //g_object_unref(G_OBJECT(data->srcPixbuf));
 
     // Set Canvas labels
     //sprintf(buff, "Frame Width: %d", gdk_pixbuf_get_width(data->srcPixbuf));
@@ -85,8 +82,44 @@ int main(int argc, char **argv)
 gboolean update_bmp(gpointer user_data)
 {
     struct CbData *data = user_data;
-    char buff[64];
-    sprintf(buff, "Frame: %u", data->frameNumber);
-    (data->frameNumber)++;
-    gtk_label_set_text((GtkLabel*)(data->frameWidthLabel), buff);
+    struct stat st;
+    unsigned int size;
+    short int exists;
+
+    // Get file size
+    exists = stat(data->fileName, &st);
+    size = st.st_size;
+    g_print("Exist: (%u) Size: (%u)\n", exists, size);
+
+    // Check if still waiting to load image
+    if((data->state) == 0)
+    {
+        // Check if file exists with header information
+        if((exists == 0) && (size > HEADER_SIZE))
+        {
+            // Indicate image exists and needs to be moitored
+            data->state = 1;
+        }
+    }
+
+    // File exists and needs to be checked for updates
+    if((data->state) == 1)
+    {
+        
+        // Check if new file size is larger
+        if(size > (data->fileSize))
+        {
+            data->fileSize = size;
+
+            // Set the image from file
+            data->srcPixbuf = gdk_pixbuf_new_from_file(data->fileName, NULL);
+
+            // Set image from Pixbuf
+            gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->srcPixbuf);
+
+            //Clear Pixbuf
+            g_object_unref(G_OBJECT(data->srcPixbuf));
+        }
+    }
+    return TRUE;
 }
