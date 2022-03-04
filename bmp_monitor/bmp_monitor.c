@@ -33,10 +33,11 @@ int main(int argc, char **argv)
     data = g_slice_new(struct CbData);
 
     // Get objects from UI file
-    data->mainWindow = GTK_WIDGET(gtk_builder_get_object(builder, "mainWindow"));
+    data->mainWindow = GTK_WIDGET(
+                            gtk_builder_get_object(builder, "mainWindow"));
     data->image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
     data->frameWidthLabel = GTK_WIDGET(gtk_builder_get_object(builder, "framewidthlabel"));
-    data->frameHeightLabel = GTK_WIDGET(gtk_builder_get_object(builder, "frameheightlabel"));
+    data->frameHeightLabel =    GTK_WIDGET(gtk_builder_get_object(builder, "frameheightlabel"));
     data->progressLabel = GTK_WIDGET(gtk_builder_get_object(builder, "progresslabel"));
 
     // Connect signals
@@ -53,7 +54,7 @@ int main(int argc, char **argv)
     sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
 
     // Set window title
-    gtk_window_set_title((GtkWindow*)(data->mainWindow), data->fileName);
+    gtk_window_set_title((GtkWindow*)(data->mainWindow), (strrchr(data->fileName, '/')) + 1);
 
     // Show window.  All other widgets are automatically shown by GtkBuilder
     gtk_widget_show(data->mainWindow);
@@ -116,17 +117,24 @@ gboolean update_bmp(gpointer user_data)
             // Set the image from file
             data->srcPixbuf = gdk_pixbuf_new_from_file(data->fileName, NULL);
 
-            /* BEGIN Create image drawn from top */
             // Create black background
-            data->destPixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, 0, 8, gdk_pixbuf_get_width(data->srcPixbuf), gdk_pixbuf_get_height(data->srcPixbuf));
+            data->destPixbuf =  gdk_pixbuf_new(
+                                    GDK_COLORSPACE_RGB, 
+                                    0, 
+                                    8, 
+                                    gdk_pixbuf_get_width(data->srcPixbuf), 
+                                    gdk_pixbuf_get_height(data->srcPixbuf)
+                                );
+
             gdk_pixbuf_fill(data->destPixbuf, 0);
 
-            // Calculate occupied area of bitmap
             // Calculate finished full size of image in bytes (not including header)
             fullSize = (gdk_pixbuf_get_width(data->srcPixbuf) * gdk_pixbuf_get_height(data->srcPixbuf))*3;
 
             // Calculate number of lines present in current bitmap
-            numLines = floor((double)((((float)(size - HEADER_SIZE)) / ((float)(fullSize))) * (float)(gdk_pixbuf_get_height(data->srcPixbuf))));
+            numLines = floor((double)((((float)(size - HEADER_SIZE)) / 
+                            ((float)(fullSize))) * 
+                            (float)(gdk_pixbuf_get_height(data->srcPixbuf))));
 
             // Copy occupied area of bitmap to top of canvas
             gdk_pixbuf_copy_area(
@@ -140,18 +148,16 @@ gboolean update_bmp(gpointer user_data)
                 0
             );
 
-
-            /* END Create image drawn from top */
-
             // Set image from Pixbuf
             gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
-
 
             // Set Canvas labels
             sprintf(buff, "Frame Width: %d", gdk_pixbuf_get_width(data->srcPixbuf));
             gtk_label_set_text((GtkLabel*)(data->frameWidthLabel), buff);
+
             sprintf(buff, "Frame Height: %d", gdk_pixbuf_get_height(data->srcPixbuf));
             gtk_label_set_text((GtkLabel*)(data->frameHeightLabel), buff);
+
             sprintf(buff, "Progress: %.2f%%", ((float)(size - HEADER_SIZE) / (float)(fullSize)) * 100.0);
             gtk_label_set_text((GtkLabel*)(data->progressLabel), buff);
 
@@ -175,11 +181,12 @@ gboolean update_bmp(gpointer user_data)
         sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
 
         // Set new window title
-        gtk_window_set_title((GtkWindow*)(data->mainWindow), data->fileName);
+        gtk_window_set_title((GtkWindow*)(data->mainWindow), (strrchr(data->fileName, '/')) + 1);
 
         // Clear image for new one
         gtk_image_clear((GtkImage*)(data->image));
     }
 
+    // Return TRUE so function keeps getting called
     return TRUE;
 }
