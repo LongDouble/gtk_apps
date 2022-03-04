@@ -24,7 +24,10 @@ struct CbData
     // Size of the currenly monitored BMP
     unsigned int fileSize;
 
-    // Unscaled source photo
+    // Unmodified source photo
     GdkPixbuf* srcPixbuf;
+
+    // Image drawn from top
+    GdkPixbuf * destPixbuf;
 };
 #endif

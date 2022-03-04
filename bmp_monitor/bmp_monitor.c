@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <math.h>
 #include "support.h"
 
 #define HEADER_SIZE 54
@@ -93,8 +94,11 @@ gboolean update_bmp(gpointer user_data)
     // General use character buffer
     char buff[64];
 
-    // Calculated full size of image when complete
+    // Calculated full size of image when complete (not including header)
     unsigned int fullSize;
+
+    // Number of lines present in current bitmap
+    unsigned int numLines;
 
     // Get file size
     exists = stat(data->fileName, &st);
@@ -112,22 +116,48 @@ gboolean update_bmp(gpointer user_data)
             // Set the image from file
             data->srcPixbuf = gdk_pixbuf_new_from_file(data->fileName, NULL);
 
-            // Set image from Pixbuf
-            gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->srcPixbuf);
+            /* BEGIN Create image drawn from top */
+            // Create black background
+            data->destPixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, 0, 8, gdk_pixbuf_get_width(data->srcPixbuf), gdk_pixbuf_get_height(data->srcPixbuf));
+            gdk_pixbuf_fill(data->destPixbuf, 0);
 
+            // Calculate occupied area of bitmap
             // Calculate finished full size of image in bytes (not including header)
             fullSize = (gdk_pixbuf_get_width(data->srcPixbuf) * gdk_pixbuf_get_height(data->srcPixbuf))*3;
+
+            // Calculate number of lines present in current bitmap
+            numLines = floor((double)((((float)(size - HEADER_SIZE)) / ((float)(fullSize))) * (float)(gdk_pixbuf_get_height(data->srcPixbuf))));
+
+            // Copy occupied area of bitmap to top of canvas
+            gdk_pixbuf_copy_area(
+                data->srcPixbuf,
+                0,
+                gdk_pixbuf_get_height(data->srcPixbuf) - numLines,
+                gdk_pixbuf_get_width(data->srcPixbuf),
+                numLines,
+                data->destPixbuf,
+                0,
+                0
+            );
+
+
+            /* END Create image drawn from top */
+
+            // Set image from Pixbuf
+            gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
+
 
             // Set Canvas labels
             sprintf(buff, "Frame Width: %d", gdk_pixbuf_get_width(data->srcPixbuf));
             gtk_label_set_text((GtkLabel*)(data->frameWidthLabel), buff);
             sprintf(buff, "Frame Height: %d", gdk_pixbuf_get_height(data->srcPixbuf));
             gtk_label_set_text((GtkLabel*)(data->frameHeightLabel), buff);
-            sprintf(buff, "Progress: %.2f%%", ((float)(size - 54) / (float)(fullSize)) * 100.0);
+            sprintf(buff, "Progress: %.2f%%", ((float)(size - HEADER_SIZE) / (float)(fullSize)) * 100.0);
             gtk_label_set_text((GtkLabel*)(data->progressLabel), buff);
 
             //Clear Pixbuf
             g_object_unref(G_OBJECT(data->srcPixbuf));
+            g_object_unref(G_OBJECT(data->destPixbuf));
         }
     }
 

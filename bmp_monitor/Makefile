@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = `pkg-config --cflags --libs gtk+-3.0 gmodule-2.0`
+CFLAGS = `pkg-config --cflags --libs gtk+-3.0 gmodule-2.0` -lm
 OBJECTS = bmp_monitor.o callbacks.o resources.o
 
 charter: $(OBJECTS)
