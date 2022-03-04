@@ -6,6 +6,9 @@ struct CbData
     GtkWidget *mainWindow;
     GtkWidget *image;
 
+    // Geometry information for setting max window size
+    GdkGeometry geometry;
+
     // File prefix
     char prefix[4097];
 

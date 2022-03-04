@@ -4,9 +4,10 @@
 #include <math.h>
 #include "support.h"
 
+// Bitmap header size
 #define HEADER_SIZE 54
 
-// Runs once every 100 ms
+// Called every 100 ms to update the image
 gboolean update_bmp(gpointer user_data);
 
 int main(int argc, char **argv)
@@ -26,7 +27,7 @@ int main(int argc, char **argv)
     // Verify a filename was passed as an argument
     if(argc != 2)
     {
-        g_printerr("ERROR: No file prefix! (Usage: ./bmp_monitor <file-prefix>)\n");
+        g_printerr("ERROR: Incorrect program usage! (Usage: ./bmp_monitor <file-prefix>)\n");
         return 1;
     }
 
@@ -53,7 +54,7 @@ int main(int argc, char **argv)
     sprintf(data->fileName, "%s%u.bmp", data->prefix, data->frameNumber);
     sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
 
-    // Set window title
+    // Format new window title string
     if(strchr(data->fileName, '/') != NULL)
     {
         // Insert filename without path into title
@@ -65,6 +66,7 @@ int main(int argc, char **argv)
         strcpy(data->windowTitle, data->fileName);
     }
 
+    // Set window title
     gtk_window_set_title((GtkWindow*)(data->mainWindow), data->windowTitle);
 
     // Show window.  All other widgets are automatically shown by GtkBuilder
@@ -128,7 +130,7 @@ gboolean update_bmp(gpointer user_data)
             // Set the image from file
             data->srcPixbuf = gdk_pixbuf_new_from_file(data->fileName, NULL);
 
-            // Create black background
+            // Create new destination Pixbuf
             data->destPixbuf =  gdk_pixbuf_new(
                                     GDK_COLORSPACE_RGB, 
                                     0, 
@@ -137,6 +139,7 @@ gboolean update_bmp(gpointer user_data)
                                     gdk_pixbuf_get_height(data->srcPixbuf)
                                 );
 
+            // Fill destination Pixbuf with black
             gdk_pixbuf_fill(data->destPixbuf, 0);
 
             // Calculate finished full size of image in bytes (not including header)
@@ -159,10 +162,22 @@ gboolean update_bmp(gpointer user_data)
                 0
             );
 
+            // Set max width and height geometry values
+            (data->geometry).max_width = gdk_pixbuf_get_width(data->destPixbuf);
+            (data->geometry).max_height = gdk_pixbuf_get_height(data->destPixbuf);
+
+            // Apply max width and height geometry values to window
+            gtk_window_set_geometry_hints(
+                GTK_WINDOW(data->mainWindow),
+                NULL,
+                &(data->geometry),
+                GDK_HINT_MAX_SIZE
+            );
+
             // Set image from Pixbuf
             gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
             
-            // Set new window title
+            // Format new window title string
             if(strchr(data->fileName, '/') != NULL)
             {
                 // Insert filename without path
@@ -174,6 +189,7 @@ gboolean update_bmp(gpointer user_data)
                 strcpy(data->windowTitle, data->fileName);
             }
 
+            // Add dimensions and progress to window title
             sprintf(buff, " (%d", gdk_pixbuf_get_width(data->srcPixbuf));
             strcat(data->windowTitle, buff);
 
@@ -183,9 +199,10 @@ gboolean update_bmp(gpointer user_data)
             sprintf(buff, "(%.2f%%)", ((float)(size - HEADER_SIZE) / (float)(fullSize)) * 100.0);
             strcat(data->windowTitle, buff);
 
+            // Set window title
             gtk_window_set_title((GtkWindow*)(data->mainWindow), data->windowTitle);
 
-            //Clear Pixbuf
+            // Clear Pixbuf
             g_object_unref(G_OBJECT(data->srcPixbuf));
             g_object_unref(G_OBJECT(data->destPixbuf));
         }
@@ -204,7 +221,7 @@ gboolean update_bmp(gpointer user_data)
         sprintf(data->fileName, "%s%u.bmp", data->prefix, data->frameNumber);
         sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
 
-        // Set new window title
+        // Format new window title string
         if(strchr(data->fileName, '/') != NULL)
         {
             // Insert filename without path
@@ -216,12 +233,13 @@ gboolean update_bmp(gpointer user_data)
             strcpy(data->windowTitle, data->fileName);
         }
 
+        // Set new window title
         gtk_window_set_title((GtkWindow*)(data->mainWindow), data->windowTitle);
 
         // Clear image for new one
         gtk_image_clear((GtkImage*)(data->image));
     }
 
-    // Return TRUE so function keeps getting called
+    // Return TRUE so function keeps getting called every 100 ms
     return TRUE;
 }
