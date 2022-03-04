@@ -6,11 +6,15 @@
 
 #define HEADER_SIZE 54
 
+// Runs once every 100 ms
 gboolean update_bmp(gpointer user_data);
 
 int main(int argc, char **argv)
 {
+    // Struct passed to every callback
     struct CbData *data;
+
+    // Builds UI from file
     GtkBuilder *builder;
 
     // Character buffer
@@ -33,12 +37,8 @@ int main(int argc, char **argv)
     data = g_slice_new(struct CbData);
 
     // Get objects from UI file
-    data->mainWindow = GTK_WIDGET(
-                            gtk_builder_get_object(builder, "mainWindow"));
+    data->mainWindow = GTK_WIDGET(gtk_builder_get_object(builder, "mainWindow"));
     data->image = GTK_WIDGET(gtk_builder_get_object(builder, "image"));
-    data->frameWidthLabel = GTK_WIDGET(gtk_builder_get_object(builder, "framewidthlabel"));
-    data->frameHeightLabel =    GTK_WIDGET(gtk_builder_get_object(builder, "frameheightlabel"));
-    data->progressLabel = GTK_WIDGET(gtk_builder_get_object(builder, "progresslabel"));
 
     // Connect signals
     gtk_builder_connect_signals(builder, data);
@@ -54,7 +54,8 @@ int main(int argc, char **argv)
     sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
 
     // Set window title
-    gtk_window_set_title((GtkWindow*)(data->mainWindow), (strrchr(data->fileName, '/')) + 1);
+    strcpy(data->windowTitle, (strrchr(data->fileName, '/')) + 1);
+    gtk_window_set_title((GtkWindow*)(data->mainWindow), data->windowTitle);
 
     // Show window.  All other widgets are automatically shown by GtkBuilder
     gtk_widget_show(data->mainWindow);
@@ -150,16 +151,20 @@ gboolean update_bmp(gpointer user_data)
 
             // Set image from Pixbuf
             gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
+            
+            // Set new window title
+            strcpy(data->windowTitle, (strrchr(data->fileName, '/')) + 1);
 
-            // Set Canvas labels
-            sprintf(buff, "Frame Width: %d", gdk_pixbuf_get_width(data->srcPixbuf));
-            gtk_label_set_text((GtkLabel*)(data->frameWidthLabel), buff);
+            sprintf(buff, " (%d", gdk_pixbuf_get_width(data->srcPixbuf));
+            strcat(data->windowTitle, buff);
 
-            sprintf(buff, "Frame Height: %d", gdk_pixbuf_get_height(data->srcPixbuf));
-            gtk_label_set_text((GtkLabel*)(data->frameHeightLabel), buff);
+            sprintf(buff, "x%d) ", gdk_pixbuf_get_height(data->srcPixbuf));
+            strcat(data->windowTitle, buff);
 
-            sprintf(buff, "Progress: %.2f%%", ((float)(size - HEADER_SIZE) / (float)(fullSize)) * 100.0);
-            gtk_label_set_text((GtkLabel*)(data->progressLabel), buff);
+            sprintf(buff, "(%.2f%%)", ((float)(size - HEADER_SIZE) / (float)(fullSize)) * 100.0);
+            strcat(data->windowTitle, buff);
+
+            gtk_window_set_title((GtkWindow*)(data->mainWindow), data->windowTitle);
 
             //Clear Pixbuf
             g_object_unref(G_OBJECT(data->srcPixbuf));
@@ -181,7 +186,8 @@ gboolean update_bmp(gpointer user_data)
         sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
 
         // Set new window title
-        gtk_window_set_title((GtkWindow*)(data->mainWindow), (strrchr(data->fileName, '/')) + 1);
+        strcpy(data->windowTitle, (strrchr(data->fileName, '/')) + 1);
+        gtk_window_set_title((GtkWindow*)(data->mainWindow), data->windowTitle);
 
         // Clear image for new one
         gtk_image_clear((GtkImage*)(data->image));

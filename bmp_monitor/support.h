@@ -5,9 +5,6 @@ struct CbData
     // Widgets to load from glade
     GtkWidget *mainWindow;
     GtkWidget *image;
-    GtkWidget *frameWidthLabel;
-    GtkWidget *frameHeightLabel;
-    GtkWidget *progressLabel;
 
     // File prefix
     char prefix[4097];
@@ -17,6 +14,9 @@ struct CbData
 
     // Next file name to monitor
     char nextFileName[4097];
+
+    // Window title
+    char windowTitle[4097];
 
     // Current frame number
     unsigned int frameNumber;
