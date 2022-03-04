@@ -54,7 +54,17 @@ int main(int argc, char **argv)
     sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
 
     // Set window title
-    strcpy(data->windowTitle, (strrchr(data->fileName, '/')) + 1);
+    if(strchr(data->fileName, '/') != NULL)
+    {
+        // Insert filename without path into title
+        strcpy(data->windowTitle, (strrchr(data->fileName, '/')) + 1);
+    }
+    else
+    {
+        // Insert whole filename since there is no path
+        strcpy(data->windowTitle, data->fileName);
+    }
+
     gtk_window_set_title((GtkWindow*)(data->mainWindow), data->windowTitle);
 
     // Show window.  All other widgets are automatically shown by GtkBuilder
@@ -153,7 +163,16 @@ gboolean update_bmp(gpointer user_data)
             gtk_image_set_from_pixbuf((GtkImage*)(data->image), data->destPixbuf);
             
             // Set new window title
-            strcpy(data->windowTitle, (strrchr(data->fileName, '/')) + 1);
+            if(strchr(data->fileName, '/') != NULL)
+            {
+                // Insert filename without path
+                strcpy(data->windowTitle, (strrchr(data->fileName, '/')) + 1);
+            }
+            else
+            {
+                // Insert whole filename since there is no path
+                strcpy(data->windowTitle, data->fileName);
+            }
 
             sprintf(buff, " (%d", gdk_pixbuf_get_width(data->srcPixbuf));
             strcat(data->windowTitle, buff);
@@ -186,7 +205,17 @@ gboolean update_bmp(gpointer user_data)
         sprintf(data->nextFileName, "%s%u.bmp", data->prefix, (data->frameNumber) + 1);
 
         // Set new window title
-        strcpy(data->windowTitle, (strrchr(data->fileName, '/')) + 1);
+        if(strchr(data->fileName, '/') != NULL)
+        {
+            // Insert filename without path
+            strcpy(data->windowTitle, (strrchr(data->fileName, '/')) + 1);
+        }
+        else
+        {
+            // Insert whole filename since there is no path
+            strcpy(data->windowTitle, data->fileName);
+        }
+
         gtk_window_set_title((GtkWindow*)(data->mainWindow), data->windowTitle);
 
         // Clear image for new one
