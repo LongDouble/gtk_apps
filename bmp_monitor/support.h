@@ -1,5 +1,18 @@
-#ifndef __SUPPORT_H__
-#define __SUPPORT_H__
+#ifndef __MAIN_H__
+#define __MAIN_H__
+
+// Bitmap header size
+#define HEADER_SIZE 54
+
+#include <gtk/gtk.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <math.h>
+
+// Called every 100 ms to update the image
+gboolean update_bmp(gpointer user_data);
+
+// Struct passed to every callback function
 struct CbData
 {
     // Widgets to load from glade
@@ -33,4 +46,5 @@ struct CbData
     // Image drawn from top
     GdkPixbuf * destPixbuf;
 };
+
 #endif
