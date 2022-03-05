@@ -1,5 +1,5 @@
 #include <gtk/gtk.h>
-#include "support.h"
+#include "main.h"
 
 // Run every 100 ms
 gboolean update_bmp(gpointer user_data)

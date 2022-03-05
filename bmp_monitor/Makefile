@@ -1,14 +1,14 @@
 CC = gcc
 CFLAGS = `pkg-config --cflags --libs gtk+-3.0 gmodule-2.0` -lm
-OBJECTS = bmp_monitor.o callbacks.o resources.o
+OBJECTS = main.o callbacks.o resources.o
 
-charter: $(OBJECTS)
+bmp_monitor: $(OBJECTS)
 	$(CC) -o bmp_monitor $(OBJECTS) $(CFLAGS)
 
-bmp_monitor.o: bmp_monitor.c support.h
-	$(CC) -c bmp_monitor.c $(CFLAGS)
+main.o: main.c main.h
+	$(CC) -c main.c $(CFLAGS)
 
-callbacks.o: callbacks.c support.h
+callbacks.o: callbacks.c
 	$(CC) -c callbacks.c $(CFLAGS)
 
 resources.o: resources.c
