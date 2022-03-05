@@ -1,5 +1,6 @@
 #include "main.h"
 #include "monitoring.h"
+#include "structures.h"
 
 int main(int argc, char **argv)
 {
@@ -62,6 +63,13 @@ int main(int argc, char **argv)
 
     // Show window.  All other widgets are automatically shown by GtkBuilder
     gtk_widget_show(data->mainWindow);
+
+    // Set initial maximum size
+    gtk_window_get_size(
+        (GtkWindow*)(data->mainWindow), 
+        &((data->geometry).max_width), 
+        &((data->geometry).max_height)
+    );
 
     // Run update_bmp function every 100 ms to check for changes
     gint func_ref = g_timeout_add(100, update_bmp, data);

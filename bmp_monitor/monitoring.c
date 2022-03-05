@@ -5,6 +5,12 @@ gboolean update_bmp(gpointer user_data)
 {
     struct CbData *data = user_data;
 
+    // Set when user requested mazimized window
+    static int setMax = 0;
+
+    // Holds current window width and height
+    int windowWidth, windowHeight;
+
     // Structs needed to retrieve file size
     struct stat st;
     struct stat nextSt;
@@ -152,7 +158,36 @@ gboolean update_bmp(gpointer user_data)
         gtk_image_clear((GtkImage*)(data->image));
     }
 
+    // Get size of window
+    gtk_window_get_size((GtkWindow*)(data->mainWindow), &windowWidth, &windowHeight);
+
+    // Check if user requested maximized window when this function last ran
+    if(setMax == 1)
+    {
+        // Resize window to max size
+        gtk_window_resize(
+            (GtkWindow*)(data->mainWindow), 
+            (data->geometry).max_width, 
+            (data->geometry).max_height
+        );
+        
+        // Reset flag
+        setMax = 0;
+    }
+
+    // Check if current window is too large (if user maximized)
+    if(
+    (windowWidth > ((data->geometry).max_width)) || 
+    (windowHeight > ((data->geometry).max_height))
+    )
+    {
+        // Unmaximize window
+        gtk_window_unmaximize((GtkWindow*)(data->mainWindow));
+
+        // Set max flag
+        setMax = 1;
+    }
+
     // Return TRUE so function keeps getting called every 100 ms
     return TRUE;
 }
-

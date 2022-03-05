@@ -1,4 +1,4 @@
-#include <gtk/gtk.h>
+#include "structures.h"
 
 // Close process when window is closed
 G_MODULE_EXPORT void
