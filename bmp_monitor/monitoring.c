@@ -72,7 +72,7 @@ gboolean update_bmp(gpointer user_data)
             gdk_pixbuf_copy_area(
                 data->srcPixbuf,
                 0,
-                gdk_pixbuf_get_height(data->srcPixbuf) - numLines,
+                0,
                 gdk_pixbuf_get_width(data->srcPixbuf),
                 numLines,
                 data->destPixbuf,
